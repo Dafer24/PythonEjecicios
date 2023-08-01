@@ -40,12 +40,12 @@ robot_art = r"""
 print(robot_art)
 
 
-class Part():
+class Part:
 
-    def __init__(self, name: str, attack_Level=0, defense_Level=0, energy_consumption=0):
+    def __init__(self, name: str, attack_level=0, defense_level=0, energy_consumption=0):
         self.name = name
-        self.attack_Level = attack_Level
-        self.defense_Level = defense_Level
+        self.attack_level = attack_level
+        self.defense_level = defense_level
         self.energy_consumption = energy_consumption
         self.available = True
 
@@ -54,16 +54,16 @@ class Part():
         return {
             "{}_name".format(formatted_name): self.name.upper(),
             "{}_status".format(formatted_name): self.is_available,
-            "{}_attack".format(formatted_name): self.attack_Level,
-            "{}_defense".format(formatted_name): self.defense_Level,
-            "{}_energy_Consump".format(formatted_name): self.energy_consumption
+            "{}_attack".format(formatted_name): self.attack_level,
+            "{}_defense".format(formatted_name): self.defense_level,
+            "{}_energy_consump".format(formatted_name): self.energy_consumption
         }
 
     def is_available(self):
-        return not self.defense_Level <= 0
+        return not self.defense_level <= 0
 
 
-# Dictionary of colors
+# Dicionario = colores
 colors = {
     "Black": '\x1b[90m',
     "Blue": '\x1b[94m',
@@ -75,89 +75,87 @@ colors = {
     "Yellow": '\x1b[93m'
 }
 
+
 class Robot:
 
-      def __init__(self, name, colorCode):
-          self.name = name
-          self.colorCode = colorCode
-          self.energy = 100
-          self.parts = [
-                    Part("Head", attack_Level = 5, defense_Level = 10, energy_consumption = 5),
-                    Part("Weapon", attack_Level = 15, defense_Level = 0, energy_consumption = 10),
-                    Part("Left Arm", attack_Level = 3, defense_Level = 20, energy_consumption = 10),
-                    Part("Right Arm", attack_Level = 6, defense_Level = 20, energy_consumption = 10),
-                    Part("Left Leg", attack_Level = 4, defense_Level = 20, energy_consumption = 15),
-                    Part("Right Leg", attack_Level = 8, defense_Level = 20, energy_consumption = 15),
-              ]
+    def __init__(self, name, color_code):
+        self.name = name
+        self.color_code = color_code
+        self.energy = 100
+        self.parts = [
+            Part("Head", attack_level=5, defense_level=10, energy_consumption=5),
+            Part("Weapon", attack_level=15, defense_level=0, energy_consumption=10),
+            Part("Left Arm", attack_level=3, defense_level=20, energy_consumption=10),
+            Part("Right Arm", attack_level=6, defense_level=20, energy_consumption=10),
+            Part("Left Leg", attack_level=4, defense_level=20, energy_consumption=15),
+            Part("Right Leg", attack_level=8, defense_level=20, energy_consumption=15),
+        ]
 
+    def greet(self):
+        print("Hello, my name is", self.name)
 
-      def greet(self):
-          print("Hello, my name is", self.name)
+    def print_energy(self):
+        print("We have", self.energy, "percent energy left")
 
+    def attack(self, enemy_robot, part_to_use, part_to_attack):
+        enemy_robot.parts[part_to_attack].defense_level -= self.parts[part_to_use].attack_level
+        self.energy -= self.parts[part_to_use].energy_consumption
 
-      def print_energy(self):
-          print("We have", self.energy ,"percent energy left")
+    def is_on(self):
+        return self.energy >= 0
 
-      def attack(self,enemy_robot, part_to_use, part_to_attack):
-          enemy_robot.parts[part_to_attack].defense_Level -= self.parts[part_to_use].attack_Level
-          self.energy -= self.parts[part_to_use].energy_consumption
+    def is_there_available_parts(self):
+        for part in self.parts:
+            if part.is_available():
+                return True
+        return False
 
-      def is_on(self):
-            return self.energy >= 0
+    def print_status(self):
+        print(self.color_code)
+        str_robot = robot_art.format(**self.get_part_status())
+        self.greet()
+        self.print_energy()
+        print(str_robot)
+        print(colors["White"])
 
-      def is_there_available_parts(self):
-          for part in self.parts:
-              if part.is_available():
-                  return True
-          return False
-
-
-      def print_status(self):
-          print(self.colorCode)
-          str_robot = robot_art.format(**self.get_part_status())
-          self.greet()
-          self.print_energy()
-          print(str_robot)
-          print(colors["White"])
-
-      def get_part_status(self):
-          part_status = {}
-          for part in self.parts:
-              status_dict = part.get_status_dict()
-              part_status.update(status_dict)
-          return part_status
+    def get_part_status(self):
+        part_status = {}
+        for part in self.parts:
+            status_dict = part.get_status_dict()
+            part_status.update(status_dict)
+        return part_status
 
 
 def play():
-
-      playing = True
-      print("Welcome to the Game")
-      robot_one = Robot("Mike" , colors["Blue"])
-      robot_two = Robot("Dafer", colors["Red"])
-      round = 0
-      while playing:
-          if round % 2 == 0:
+    playing = True
+    print("Welcome to the Game")
+    robot_one = Robot("Mike", colors["Blue"])
+    robot_two = Robot("Dafer", colors["Red"])
+    round_count = 0
+    while playing:
+        if round_count % 2 == 0:
             current_robot = robot_one
             enemy_robot = robot_two
-          else:
-              current_robot = robot_two
-              enemy_robot = robot_one
-          current_robot.print_status()
-          print("What part should I use to attack?")
-          part_to_use = input("Choose a number part: ")
-          part_to_use = int(part_to_use)
+        else:
+            current_robot = robot_two
+            enemy_robot = robot_one
+        current_robot.print_status()
+        print("What part should I use to attack?")
+        part_to_use = input("Choose a part number: ")
+        part_to_use = int(part_to_use)
 
-          enemy_robot.print_status()
-          print("Which part of the enemy should we attack?")
-          part_to_attack = input("Choose an enemy part to attack: ")
-          part_to_attack = int(part_to_attack)
+        enemy_robot.print_status()
+        print("Which part of the enemy should we attack?")
+        part_to_attack = input("Choose an enemy part to attack: ")
+        part_to_attack = int(part_to_attack)
 
-          current_robot.attack(enemy_robot, part_to_use, part_to_attack)
-          round += 1
+        current_robot.attack(enemy_robot, part_to_use, part_to_attack)
+        round_count += 1
 
-          if not enemy_robot.is_on() or enemy_robot.is_there_available_parts() == False:
-              playing = False
-              print("Congratulations, you won")
-              print(current_robot.name)
+        if not enemy_robot.is_on() or not enemy_robot.is_there_available_parts():
+            playing = False
+            print("Congratulations, you won!")
+            print(current_robot.name)
+
 
 play()
